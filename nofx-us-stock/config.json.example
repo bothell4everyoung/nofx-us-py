@@ -1,0 +1,15 @@
+{
+  "traders": [
+    {
+      "id": "deepseek_trader",
+      "name": "DeepSeek AI Trader",
+      "ai_model": "deepseek",
+      "ai_api_key": "sk-xxxxx",
+      "initial_balance": 10000.0,
+      "scan_interval_minutes": 3,
+      "trading_type": "stock",
+      "stocks": ["AAPL", "TSLA", "NVDA", "MSFT", "GOOGL"]
+    }
+  ],
+  "api_server_port": 8080
+}

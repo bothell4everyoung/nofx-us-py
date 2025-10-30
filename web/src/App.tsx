@@ -370,18 +370,18 @@ function TraderDetailsPage({
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
         <StatCard
           title={t('totalEquity', language)}
-          value={`${account?.total_equity?.toFixed(2) || '0.00'} USDT`}
+          value={`${account?.total_equity?.toFixed(2) || '0.00'} USD`}
           change={account?.total_pnl_pct || 0}
           positive={(account?.total_pnl ?? 0) > 0}
         />
         <StatCard
           title={t('availableBalance', language)}
-          value={`${account?.available_balance?.toFixed(2) || '0.00'} USDT`}
+          value={`${account?.available_balance?.toFixed(2) || '0.00'} USD`}
           subtitle={`${(account?.available_balance && account?.total_equity ? ((account.available_balance / account.total_equity) * 100).toFixed(1) : '0.0')}% ${t('free', language)}`}
         />
         <StatCard
           title={t('totalPnL', language)}
-          value={`${account?.total_pnl !== undefined && account.total_pnl >= 0 ? '+' : ''}${account?.total_pnl?.toFixed(2) || '0.00'} USDT`}
+          value={`${account?.total_pnl !== undefined && account.total_pnl >= 0 ? '+' : ''}${account?.total_pnl?.toFixed(2) || '0.00'} USD`}
           change={account?.total_pnl_pct || 0}
           positive={(account?.total_pnl ?? 0) >= 0}
         />
@@ -424,46 +424,68 @@ function TraderDetailsPage({
                   <th className="pb-3 font-semibold text-gray-400">{t('markPrice', language)}</th>
                   <th className="pb-3 font-semibold text-gray-400">{t('quantity', language)}</th>
                   <th className="pb-3 font-semibold text-gray-400">{t('positionValue', language)}</th>
-                  <th className="pb-3 font-semibold text-gray-400">{t('leverage', language)}</th>
                   <th className="pb-3 font-semibold text-gray-400">{t('unrealizedPnL', language)}</th>
-                  <th className="pb-3 font-semibold text-gray-400">{t('liqPrice', language)}</th>
+                  {/* 动态可选列 */}
+                  {positions?.some(p => p.leverage && p.leverage > 1) && (
+                    <th className="pb-3 font-semibold text-gray-400">{t('leverage', language)}</th>
+                  )}
+                  {positions?.some(p => p.liquidation_price) && (
+                    <th className="pb-3 font-semibold text-gray-400">{t('liqPrice', language)}</th>
+                  )}
+                  {positions?.some(p => p.days_to_expiry !== undefined) && (
+                    <th className="pb-3 font-semibold text-gray-400">{t('dte', language)}</th>
+                  )}
                 </tr>
               </thead>
               <tbody>
-                {positions.map((pos, i) => (
-                  <tr key={i} className="border-b border-gray-800 last:border-0">
-                    <td className="py-3 font-mono font-semibold">{pos.symbol}</td>
-                    <td className="py-3">
-                      <span
-                        className="px-2 py-1 rounded text-xs font-bold"
-                        style={pos.side === 'long'
-                          ? { background: 'rgba(14, 203, 129, 0.1)', color: '#0ECB81' }
-                          : { background: 'rgba(246, 70, 93, 0.1)', color: '#F6465D' }
-                        }
-                      >
-                        {t(pos.side === 'long' ? 'long' : 'short', language)}
-                      </span>
-                    </td>
-                    <td className="py-3 font-mono" style={{ color: '#EAECEF' }}>{pos.entry_price.toFixed(4)}</td>
-                    <td className="py-3 font-mono" style={{ color: '#EAECEF' }}>{pos.mark_price.toFixed(4)}</td>
-                    <td className="py-3 font-mono" style={{ color: '#EAECEF' }}>{pos.quantity.toFixed(4)}</td>
-                    <td className="py-3 font-mono font-bold" style={{ color: '#EAECEF' }}>
-                      {(pos.quantity * pos.mark_price).toFixed(2)} USDT
-                    </td>
-                    <td className="py-3 font-mono" style={{ color: '#F0B90B' }}>{pos.leverage}x</td>
-                    <td className="py-3 font-mono">
-                      <span
-                        style={{ color: pos.unrealized_pnl >= 0 ? '#0ECB81' : '#F6465D', fontWeight: 'bold' }}
-                      >
-                        {pos.unrealized_pnl >= 0 ? '+' : ''}
-                        {pos.unrealized_pnl.toFixed(2)} ({pos.unrealized_pnl_pct.toFixed(2)}%)
-                      </span>
-                    </td>
-                    <td className="py-3 font-mono" style={{ color: '#848E9C' }}>
-                      {pos.liquidation_price.toFixed(4)}
-                    </td>
-                  </tr>
-                ))}
+                {positions.map((pos, i) => {
+                  const isOption = pos.option_type !== undefined;
+                  const isCall = pos.option_type === 'call';
+                  return (
+                    <tr key={i} className="border-b border-gray-800 last:border-0">
+                      <td className="py-3 font-mono font-semibold">{pos.symbol}</td>
+                      <td className="py-3">
+                        <span
+                          className="px-2 py-1 rounded text-xs font-bold"
+                          style={
+                            isOption
+                              ? { background: isCall ? 'rgba(14, 203, 129, 0.1)' : 'rgba(246, 70, 93, 0.1)', color: isCall ? '#0ECB81' : '#F6465D' }
+                              : { background: pos.side === 'long' ? 'rgba(14, 203, 129, 0.1)' : 'rgba(246, 70, 93, 0.1)', color: pos.side === 'long' ? '#0ECB81' : '#F6465D' }
+                          }
+                        >
+                          {isOption ? (isCall ? 'CALL' : 'PUT') : (pos.side === 'long' ? 'LONG' : 'SHORT')}
+                        </span>
+                      </td>
+                      <td className="py-3 font-mono" style={{ color: '#EAECEF' }}>{pos.entry_price.toFixed(4)}</td>
+                      <td className="py-3 font-mono" style={{ color: '#EAECEF' }}>{pos.mark_price.toFixed(4)}</td>
+                      <td className="py-3 font-mono" style={{ color: '#EAECEF' }}>
+                        {isOption ? pos.quantity.toFixed(0) : pos.quantity.toFixed(4)}
+                      </td>
+                      <td className="py-3 font-mono font-bold" style={{ color: '#EAECEF' }}>
+                        {(pos.quantity * pos.mark_price).toFixed(2)} USD
+                      </td>
+                      <td className="py-3 font-mono">
+                        <span style={{ color: pos.unrealized_pnl >= 0 ? '#0ECB81' : '#F6465D', fontWeight: 'bold' }}>
+                          {pos.unrealized_pnl >= 0 ? '+' : ''}
+                          {pos.unrealized_pnl.toFixed(2)} ({pos.unrealized_pnl_pct.toFixed(2)}%)
+                        </span>
+                      </td>
+                      {pos.leverage > 1 && (
+                        <td className="py-3 font-mono" style={{ color: '#F0B90B' }}>{pos.leverage}x</td>
+                      )}
+                      {pos.liquidation_price && (
+                        <td className="py-3 font-mono" style={{ color: '#848E9C' }}>
+                          {pos.liquidation_price.toFixed(4)}
+                        </td>
+                      )}
+                      {isOption && pos.days_to_expiry !== undefined && (
+                        <td className="py-3 font-mono" style={{ color: pos.days_to_expiry < 7 ? '#F6465D' : '#848E9C' }}>
+                          {pos.days_to_expiry}d
+                        </td>
+                      )}
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
@@ -518,7 +540,7 @@ function TraderDetailsPage({
 
       {/* AI Learning & Performance Analysis */}
       <div className="mb-6 animate-slide-in" style={{ animationDelay: '0.3s' }}>
-        <AILearning traderId={selectedTrader.trader_id} />
+          <AILearning traderId={selectedTrader.trader_id} />
       </div>
     </div>
   );
@@ -653,8 +675,8 @@ function DecisionCard({ decision, language }: { decision: DecisionRecord; langua
       {/* Account State Summary */}
       {decision.account_state && (
         <div className="flex gap-4 text-xs mb-3 rounded px-3 py-2" style={{ background: '#0B0E11', color: '#848E9C' }}>
-          <span>净值: {decision.account_state.total_balance.toFixed(2)} USDT</span>
-          <span>可用: {decision.account_state.available_balance.toFixed(2)} USDT</span>
+          <span>净值: {decision.account_state.total_balance.toFixed(2)} USD</span>
+          <span>可用: {decision.account_state.available_balance.toFixed(2)} USD</span>
           <span>保证金率: {decision.account_state.margin_used_pct.toFixed(1)}%</span>
           <span>持仓: {decision.account_state.position_count}</span>
         </div>

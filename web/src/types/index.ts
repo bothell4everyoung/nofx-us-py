@@ -28,15 +28,26 @@ export interface AccountInfo {
 // 持仓信息
 export interface Position {
   symbol: string;
-  side: string;
+  side: "long" | "short" | "call" | "put";
   entry_price: number;
   mark_price: number;
   quantity: number;
   leverage: number;
   unrealized_pnl: number;
   unrealized_pnl_pct: number;
-  liquidation_price: number;
+  liquidation_price: number | null;
   margin_used: number;
+
+  // ========== 新增期权字段 ==========
+  option_type?: "call" | "put";
+  underlying?: string;
+  strike?: number;
+  expiration?: string;
+  delta?: number;
+  gamma?: number;
+  theta?: number;
+  vega?: number;
+  days_to_expiry?: number;
 }
 
 // 决策动作
@@ -50,6 +61,12 @@ export interface DecisionAction {
   timestamp: string;
   success: boolean;
   error: string;
+
+  // ========== 新增期权字段 ==========
+  option_type?: "call" | "put";
+  strike?: number;
+  expiration?: string;
+  days_to_expiry?: number;
 }
 
 // 决策记录

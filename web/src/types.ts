@@ -30,15 +30,26 @@ export interface AccountInfo {
 
 export interface Position {
   symbol: string;
-  side: string;
+  side: string; // 可为 'long' | 'short'，也兼容期权 CALL/PUT 标签显示
   entry_price: number;
   mark_price: number;
   quantity: number;
   leverage: number;
   unrealized_pnl: number;
   unrealized_pnl_pct: number;
-  liquidation_price: number;
+  liquidation_price: number; // 现保留为 number，前端判空后渲染
   margin_used: number;
+
+  // ===== 期权扩展字段 =====
+  option_type?: 'call' | 'put';
+  underlying?: string;
+  strike?: number;
+  expiration?: string;
+  delta?: number;
+  gamma?: number;
+  theta?: number;
+  vega?: number;
+  days_to_expiry?: number;
 }
 
 export interface DecisionAction {
@@ -51,6 +62,12 @@ export interface DecisionAction {
   timestamp: string;
   success: boolean;
   error?: string;
+
+  // ===== 期权扩展字段 =====
+  option_type?: 'call' | 'put';
+  strike?: number;
+  expiration?: string;
+  days_to_expiry?: number;
 }
 
 export interface AccountSnapshot {
