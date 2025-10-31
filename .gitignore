@@ -1,38 +1,42 @@
-# IDE 配置文件
+# Python (for nofx-us-stock/)
+nofx-us-stock/.venv/
+nofx-us-stock/venv/
+nofx-us-stock/__pycache__/
+nofx-us-stock/**/*.pyc
+nofx-us-stock/**/*.pyo
+nofx-us-stock/**/*.pyd
+nofx-us-stock/*.egg-info/
+nofx-us-stock/.pytest_cache/
+nofx-us-stock/.mypy_cache/
+nofx-us-stock/logs/
+nofx-us-stock/decision_logs/
+nofx-us-stock/*.pid
+
+# Node.js (for web/)
+web/node_modules/
+web/dist/
+web/build/
+web/.vite/
+web/*.log
+
+# Configuration (keep examples)
+nofx-us-stock/config.json
+!nofx-us-stock/config.json.example
+
+# Environment
+.env
+.env.local
+
+# IDEs
+.vscode/
 .idea/
-*.iml
-*.xml
+*.swp
+*.swo
 
-# 编译产物
-nofx-auto
-*.exe
-nofx
-nofx_test
-
-# Go 相关
-*.test
-*.out
-
-# 操作系统
+# OS
 .DS_Store
 Thumbs.db
 
-# 临时文件
+# Logs
+logs/
 *.log
-*.tmp
-*.bak
-
-# 环境变量
-.env
-config.json
-
-# 决策日志
-decision_logs/
-coin_pool_cache/
-nofx_test
-
-# Node.js
-web/node_modules/
-node_modules/
-web/dist/
-web/.vite/

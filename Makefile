@@ -62,14 +62,20 @@ web-build:
 
 # ===== Combined =====
 run-all:
-	@mkdir -p logs; \
+	@echo "🚀 启动NOFX US Stock交易系统 (开发模式)..."; \
+	echo "⚠️  按 Ctrl+C 停止"; \
+	echo ""; \
+	mkdir -p logs; \
 	$(MAKE) -C nofx-us-stock stop >/dev/null 2>&1 || true; \
-	$(MAKE) -C nofx-us-stock start; \
-	cd web && npm run dev > ../logs/web.dev.log 2>&1 & echo $$! > ../logs/web.pid; \
 	PORT=$$(python -c "import json,os; p='nofx-us-stock/config.json'; print(json.load(open(p)).get('api_server_port',8080) if os.path.exists(p) else 8080)"); \
 	echo "Backend:  http://localhost:$$PORT"; \
 	echo "Frontend: http://localhost:3000"; \
-	echo "Backend started (PID file: nofx-us-stock/logs/pid.txt); Frontend dev started (PID: $$(cat logs/web.pid))."
+	echo ""; \
+	( cd nofx-us-stock && poetry run python src/main.py ) & \
+	BACKEND_PID=$$!; \
+	trap 'kill $$BACKEND_PID 2>/dev/null || true; exit' INT TERM; \
+	cd web && npm run dev; \
+	kill $$BACKEND_PID 2>/dev/null || true
 
 start-all:
 	@$(MAKE) -C nofx-us-stock start; \
