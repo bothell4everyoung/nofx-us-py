@@ -51,29 +51,10 @@ def create_app(manager: Any | None) -> FastAPI:
     # ===== Frontend expected API (prefixed with /api and query params) =====
     @app.get("/api/competition")
     async def api_competition() -> dict[str, Any]:
-        cfg = getattr(manager, "config", None)
-        traders_cfg = cfg.traders if cfg else []
-        out: list[dict[str, Any]] = []
-        for t in traders_cfg:
-            trader_id = t.get("id", "default")
-            status = manager.status(trader_id)
-            try:
-                acct = await manager.get_account(trader_id)
-            except Exception:
-                acct = {"balance": 0.0}
-            out.append({
-                "trader_id": trader_id,
-                "trader_name": t.get("name", trader_id),
-                "ai_model": t.get("ai_model", "unknown"),
-                "total_equity": float(acct.get("balance", 0.0)),
-                "total_pnl": 0.0,
-                "total_pnl_pct": 0.0,
-                "position_count": 0,
-                "margin_used_pct": 0.0,
-                "call_count": status.get("call_count", 0),
-                "is_running": status.get("is_running", False),
-            })
-        return {"traders": out, "count": len(out)}
+        """获取竞赛对比数据（对应 Go 版本的 GetComparisonData）"""
+        if manager:
+            return await manager.get_comparison_data()
+        return {"traders": [], "count": 0}
 
     @app.get("/api/traders")
     async def api_traders() -> list[dict[str, Any]]:
@@ -123,8 +104,10 @@ def create_app(manager: Any | None) -> FastAPI:
         if not trader_id:
             cfg = getattr(manager, "config", None)
             trader_id = cfg.traders[0]["id"] if cfg and cfg.traders else "default"
-        # 使用logger汇总
-        return getattr(manager, "_logger").summary(trader_id)
+        trader = manager.get_trader(trader_id) if manager else None
+        if trader:
+            return trader.decision_logger.summary(trader_id)
+        return {"total": 0, "buy": 0, "sell": 0, "hold": 0}
 
     @app.get("/api/equity-history")
     async def api_equity_history(trader_id: str | None = None) -> list[dict[str, Any]]:

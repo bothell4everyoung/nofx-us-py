@@ -11,7 +11,7 @@ nofx-us-stock/.mypy_cache/
 nofx-us-stock/logs/
 nofx-us-stock/decision_logs/
 nofx-us-stock/*.pid
-
+*.pyc   
 # Node.js (for web/)
 web/node_modules/
 web/dist/

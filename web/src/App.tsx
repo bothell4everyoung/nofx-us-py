@@ -123,7 +123,7 @@ function App() {
             <div className="flex items-center gap-2 flex-wrap md:flex-nowrap">
               {/* GitHub Link - Hidden on mobile, icon only on tablet */}
               <a
-                href="https://github.com/tinkle-community/nofx"
+                href="https://github.com/bothell4everyoung/nofx-us-py"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hidden sm:flex items-center gap-2 px-2 md:px-3 py-1.5 md:py-2 rounded text-sm font-semibold transition-all hover:scale-105"
@@ -257,7 +257,7 @@ function App() {
           <p className="mt-1">{t('footerWarning', language)}</p>
           <div className="mt-4 flex items-center justify-center gap-2">
             <a
-              href="https://github.com/tinkle-community/nofx"
+              href="https://github.com/bothell4everyoung/nofx-us-py"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 px-4 py-2 rounded text-sm font-semibold transition-all hover:scale-105"
